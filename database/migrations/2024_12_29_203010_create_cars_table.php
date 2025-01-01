@@ -14,11 +14,15 @@ return new class extends Migration
         Schema::create('cars', function (Blueprint $table) {
             $table->id();
             $table->string('mark');
+            $table->string('avatar')->nullable();
             $table->string('model');
             $table->string('type');
             $table->integer('hp');
             $table->integer('price');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -45,4 +45,24 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relationship: User has many Cars.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cars()
+    {
+        return $this->hasMany(Car::class);
+    }
+
+    /**
+     * Get the cars count for the user.
+     *
+     * @return int
+     */
+    public function getCarsCountAttribute(): int
+    {
+        return $this->cars()->count();
+    }
 }

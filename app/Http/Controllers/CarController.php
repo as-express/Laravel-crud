@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Car;
+use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class CarController extends Controller
 {
     public function list() {
-        $cars = Car::all();
+        $cars = auth()->user()->cars;
         return view('list', ['cars' => $cars]);
     }
 
@@ -17,11 +19,21 @@ class CarController extends Controller
             'model' => 'required',
             'type' => 'required',
             'hp' => 'required|numeric',
-            'price' => 'required|numeric', 
+            'price' => 'required|numeric'
         ]);
-        
+        $data['user_id'] = auth()->id();
 
         $newCar = Car::create($data);
+        
+        if($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = time() .'_'. $file->getClientOriginalName();
+            $path = $file->storeAs('avatars', $filename, 'public');
+
+            $newCar->avatar = $path;
+            $newCar->save();
+        };
+
         return redirect(route(('list')));
     }
 
@@ -37,6 +49,7 @@ class CarController extends Controller
         $data = $request->validate([
             'mark' => 'nullable', 
             'model' => 'nullable',
+            'avatar' => 'nullable',
             'type' => 'nullable',
             'hp' => 'nullable|numeric',
             'price' => 'nullable|numeric', 
@@ -53,8 +66,11 @@ class CarController extends Controller
 
     public function remove(Request $request) {
         $car = Car::findOrFail($request->id);
-        $car->delete();
+        if($car->avatar) {
+            Storage::disk('public')->delete($car->avatar);
+        }
 
+        $car->delete();
         return redirect(route(('list')));
     }
 }

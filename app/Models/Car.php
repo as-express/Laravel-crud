@@ -12,8 +12,15 @@ class Car extends Model
     protected $fillable = [
         'mark',
         'model',
+        'avatar',
         'type',
         'hp',
-        'price'
+        'price',
+        'user_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
